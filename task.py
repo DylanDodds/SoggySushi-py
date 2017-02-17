@@ -3,5 +3,5 @@ class Task:
     def __init__(self, hook):
         self.hook = hook
 
-    def run(self, arg=None):
+    async def run(self, bot, arg):
         pass
