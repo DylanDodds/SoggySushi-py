@@ -2,5 +2,5 @@ class Task:
     def __init__(self):
         pass
 
-    def run(arg = None):
+    def run(self, arg=None):
         pass
