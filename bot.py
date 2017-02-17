@@ -1,8 +1,18 @@
 import discord
 import asyncio
 
-class Bot(discord.Client):
+from triggers.admintrigger import 
+from task import Task
 
+class Bot(discord.Client):
+    def __init__(self):
+        self._userCmdTrigger = Trigger()
+        self._adminCmdTrigger = Trigger()
+        register_commands()
+    
+    def register_commands(self):
+        pass
+    
     @asyncio.coroutine
     def on_ready(self):
         print('Soggy Sushi has successfully connected!')
@@ -14,6 +24,11 @@ class Bot(discord.Client):
         command = message.content.split(' ')
         sender = message.author
 
+        if message.content.startswith('--s'):
+            _adminCmdTrigger.notify(message)
+        elif message.content.startswith('.s'):
+            _userCmdTrigger.notify(message)
+            
         if 'pizza' in message.content.lower():
             yield from self.send_message(message.channel,
                                          'That is the single most pop punk thing you have ever said in your entire life, ever.', tts=True)
