@@ -1,0 +1,10 @@
+from trigger import Trigger
+
+
+class AdminChatTrigger(Trigger):
+    
+    def notify(self, arg):
+        text = arg.content.split[' ']
+        for task in self._tasks:
+            if task.taskName == text[1]:
+                task.run(arg)

@@ -7,4 +7,4 @@ class Trigger:
             task.run(arg)
 
     def register(self, task):
-        self._tasks.add(task)
+        self._tasks.append(task)

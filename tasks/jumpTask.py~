@@ -1,0 +1,6 @@
+from task import Task
+
+class JumpTask(Task):
+
+    def run(self, arg):
+        pass
