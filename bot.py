@@ -3,8 +3,15 @@ import asyncio
 
 from task import Task
 from trigger import Trigger
+
+# Triggers
 from triggers.adminChatTrigger import AdminChatTrigger
+
+# Tasks
 from tasks.jumpTask import JumpTask
+from tasks.execTask import ExecTask
+from tasks.evalTask import EvalTask
+
 
 class Bot(discord.Client):
 
@@ -29,3 +36,5 @@ class Bot(discord.Client):
 
     def register_commands(self):
         self._adminCmdTrigger.register(JumpTask('jump'))
+        self._adminCmdTrigger.register(ExecTask('exec'))
+        self._adminCmdTrigger.register(EvalTask('eval'))
