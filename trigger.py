@@ -9,3 +9,6 @@ class Trigger:
 
     def register(self, task):
         self._tasks.append(task)
+
+    def set_tasks(self, taskList):
+        self._tasks = taskList 
