@@ -1,21 +1,13 @@
 import re
 from trigger import Trigger
 
-from triggers.musicChatTrigger import MusicChatTrigger
-from tasks.playYoutubeTask import PlayYoutubeTask
-
 
 # A Notification system that runs tasks when administrative commands have been requested by the user
 class AdminChatTrigger(Trigger):
 
     def __init__(self, bot, command):
-        self._musicChatTrigger = MusicChatTrigger(bot, 'music')
-        self.register_tasks()
         self.command = command
         super().__init__(bot)
-
-    def register_tasks(self):
-        self._musicChatTrigger.register(PlayYoutubeTask('play'))
 
     async def notify(self, arg):
         if not arg.content.startswith(self.command):
@@ -32,11 +24,12 @@ class AdminChatTrigger(Trigger):
         if not sender.top_role.permissions.administrator:
             await self._bot.send_message(arg.channel, 'Sorry, ' + sender.mention + ' you do not have permission to do this.')
             return 
-        if len(command) < 1:
+        if len(command) < 1 and not self._command_list_string.contains(command[0]):
             await self._bot.send_message(arg.channel, sender.mention + ', please use "' + self.hook + ' help" for a list of commands')
             return
 
-        await self._musicChatTrigger.notify(arg)
+        if command[0] == 'help':
+            arg.content = self._command_list_string
 
         for task in self._tasks:
             if task.hook == command[0]:

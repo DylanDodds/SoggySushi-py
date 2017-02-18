@@ -3,11 +3,14 @@ import discord
 # Triggers
 from triggers.adminChatTrigger import AdminChatTrigger
 from triggers.userChatTrigger import UserChatTrigger
+from triggers.musicChatTrigger import MusicChatTrigger
 
 # Tasks
 from tasks.jumpTask import JumpTask
 from tasks.execTask import ExecTask
 from tasks.debugTask import DebugTask
+from tasks.helpTask import HelpTask
+from tasks.playYoutubeTask import PlayYoutubeTask
 
 
 class Bot(discord.Client):
@@ -20,13 +23,25 @@ class Bot(discord.Client):
     def register_triggers(self):
         act = AdminChatTrigger(self, '--s')
         uct = UserChatTrigger(self, '.s')
+        mct = MusicChatTrigger(self, '.m')
+
+        mct_spcl = MusicChatTrigger(self, '♪')
 
         act.register(JumpTask('jump'))
         act.register(ExecTask('run'))
         act.register(DebugTask('dbg'))
+        act.register(HelpTask('help'))
 
-        self.triggers.append(act)
-        self.triggers.append(uct)
+        uct.register(JumpTask('jump'))
+        uct.register(HelpTask('help'))
+
+        mct.register(PlayYoutubeTask('play'))
+        mct.register(HelpTask('help'))
+
+        mct_spcl.register(PlayYoutubeTask('play'))
+        mct_spcl.register(HelpTask('help'))
+
+        self.triggers.extend([act, uct, mct, mct_spcl])
 
     async def on_ready(self):
         discord.opus.load_opus('libopus-0')
