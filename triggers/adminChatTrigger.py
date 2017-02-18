@@ -24,7 +24,7 @@ class AdminChatTrigger(Trigger):
         if not sender.top_role.permissions.administrator:
             await self._bot.send_message(arg.channel, 'Sorry, ' + sender.mention + ' you do not have permission to do this.')
             return 
-        if len(command) < 1 and not self._command_list_string.contains(command[0]):
+        if len(command) < 1 or command[0] == '':
             await self._bot.send_message(arg.channel, sender.mention + ', please use "' + self.hook + ' help" for a list of commands')
             return
 

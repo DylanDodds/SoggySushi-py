@@ -1,8 +1,6 @@
 import re
-from trigger import Trigger
 
-from triggers.musicChatTrigger import MusicChatTrigger
-from tasks.playYoutubeTask import PlayYoutubeTask
+from trigger import Trigger
 
 
 # A notification system that runs tasks when commands have been requested by the user
@@ -19,7 +17,7 @@ class UserChatTrigger(Trigger):
         arg.content = re.sub(self.command + ' ', '', arg.content, count=1)
         command = arg.content.split(' ')
         sender = arg.author
-        if len(command) < 1 and not self._command_list_string.contains(command[0]):
+        if len(command) < 1 or command[0] == '':
             await self._bot.send_message(arg.channel, sender.mention + ', please use ' + self.command + '" help" for a list of commads')
         else:
             if command[0] == 'help':

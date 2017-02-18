@@ -1,16 +1,19 @@
 import discord
 
-# Triggers
 from triggers.adminChatTrigger import AdminChatTrigger
-from triggers.userChatTrigger import UserChatTrigger
 from triggers.musicChatTrigger import MusicChatTrigger
+from triggers.userChatTrigger import UserChatTrigger
 
-# Tasks
-from tasks.jumpTask import JumpTask
-from tasks.execTask import ExecTask
 from tasks.debugTask import DebugTask
+from tasks.execTask import ExecTask
 from tasks.helpTask import HelpTask
-from tasks.playYoutubeTask import PlayYoutubeTask
+from tasks.jumpTask import JumpTask
+
+from tasks.music.playYoutubeTask import PlayYoutubeTask
+from tasks.music.stopPlayerTask import StopPlayerTask
+from tasks.music.pausePlayerTask import PausePlayerTask
+from tasks.music.resumePlayerTask import ResumePlayerTask
+from tasks.music.volumePlayerTask import VolumePlayerTask
 
 
 class Bot(discord.Client):
@@ -28,18 +31,29 @@ class Bot(discord.Client):
         mct_spcl = MusicChatTrigger(self, '♪')
 
         act.register(JumpTask('jump'))
+        act.register(JumpTask('join'))
         act.register(ExecTask('run'))
         act.register(DebugTask('dbg'))
         act.register(HelpTask('help'))
 
         uct.register(JumpTask('jump'))
+        uct.register(JumpTask('join'))
         uct.register(HelpTask('help'))
 
         mct.register(PlayYoutubeTask('play'))
+        mct.register(ResumePlayerTask('play'))
+        mct.register(StopPlayerTask('stop'))
+        mct.register(PausePlayerTask('pause'))
+        mct.register(VolumePlayerTask('volume'))
         mct.register(HelpTask('help'))
 
         mct_spcl.register(PlayYoutubeTask('play'))
+        mct_spcl.register(ResumePlayerTask('play'))
+        mct_spcl.register(StopPlayerTask('stop'))
+        mct_spcl.register(PausePlayerTask('pause'))
+        mct_spcl.register(VolumePlayerTask('volume'))
         mct_spcl.register(HelpTask('help'))
+
 
         self.triggers.extend([act, uct, mct, mct_spcl])
 
