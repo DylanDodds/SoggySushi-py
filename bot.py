@@ -17,7 +17,7 @@ class Bot(discord.Client):
 
     def __init__(self):
         super().__init__()
-        self._userCmdTrigger = Trigger(self)
+        self._userCmdTrigger = UserChatTrigger(self)
         self._adminCmdTrigger = AdminChatTrigger(self)
         self.register_commands()
     
