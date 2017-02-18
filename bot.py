@@ -8,16 +8,26 @@ from triggers.userChatTrigger import UserChatTrigger
 from tasks.jumpTask import JumpTask
 from tasks.execTask import ExecTask
 from tasks.debugTask import DebugTask
-from tasks.playYoutubeTask import PlayYoutubeTask
+
 
 class Bot(discord.Client):
 
     def __init__(self):
         super().__init__()
-        self._userCmdTrigger = UserChatTrigger(self)
-        self._adminCmdTrigger = AdminChatTrigger(self)
-        self.register_commands()
-    
+        self.triggers = []
+        self.register_triggers()
+
+    def register_triggers(self):
+        act = AdminChatTrigger(self, '--s')
+        uct = UserChatTrigger(self, '.s')
+
+        act.register(JumpTask('jump'))
+        act.register(ExecTask('run'))
+        act.register(DebugTask('dbg'))
+
+        self.triggers.append(act)
+        self.triggers.append(uct)
+
     async def on_ready(self):
         discord.opus.load_opus('libopus-0')
         print('Soggy Sushi has successfully connected!')
@@ -25,19 +35,9 @@ class Bot(discord.Client):
         print('UserId: ' + self.user.id)
 
     async def on_message(self, message):
-        if message.content.startswith('--s'):
-            await self._adminCmdTrigger.notify(message)
-        elif message.content.startswith('.s'):
-            await self._userCmdTrigger.notify(message)     
-        elif 'pizza' in message.content.lower():
+        message.content += ' '
+        for trigger in self.triggers:
+            await trigger.notify(message)
+
+        if 'pizza' in message.content.lower():
             await self.send_message(message.channel, 'That is the single most pop punk thing you have ever said in your entire life, ever.')
-
-    def register_commands(self):
-        # Admin Tasks
-        self._adminCmdTrigger.register(JumpTask('jump'))
-        self._adminCmdTrigger.register(ExecTask('run'))
-        self._adminCmdTrigger.register(PlayYoutubeTask('music'))
-        self._adminCmdTrigger.register(DebugTask('dbg'))
-
-        # User Tasks
-        # self._userCmdTrigger.register()
