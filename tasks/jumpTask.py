@@ -1,7 +1,5 @@
-import discord
-import asyncio
-
 from task import Task
+
 
 # A task that moves the bot to whichever voice channel the user is currently connected to.
 class JumpTask(Task):

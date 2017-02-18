@@ -1,8 +1,4 @@
 import discord
-import asyncio
-
-from task import Task
-from trigger import Trigger
 
 # Triggers
 from triggers.adminChatTrigger import AdminChatTrigger
@@ -11,7 +7,8 @@ from triggers.userChatTrigger import UserChatTrigger
 # Tasks
 from tasks.jumpTask import JumpTask
 from tasks.execTask import ExecTask
-
+from tasks.debugTask import DebugTask
+from tasks.playYoutubeTask import PlayYoutubeTask
 
 class Bot(discord.Client):
 
@@ -22,6 +19,7 @@ class Bot(discord.Client):
         self.register_commands()
     
     async def on_ready(self):
+        discord.opus.load_opus('libopus-0')
         print('Soggy Sushi has successfully connected!')
         print('Username: ' + self.user.name)
         print('UserId: ' + self.user.id)
@@ -38,6 +36,8 @@ class Bot(discord.Client):
         # Admin Tasks
         self._adminCmdTrigger.register(JumpTask('jump'))
         self._adminCmdTrigger.register(ExecTask('run'))
+        self._adminCmdTrigger.register(PlayYoutubeTask('music'))
+        self._adminCmdTrigger.register(DebugTask('dbg'))
 
         # User Tasks
         # self._userCmdTrigger.register()

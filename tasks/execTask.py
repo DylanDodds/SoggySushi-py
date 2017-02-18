@@ -1,7 +1,5 @@
 import re
-import discord
 import asyncio
-
 from task import Task
 
 
