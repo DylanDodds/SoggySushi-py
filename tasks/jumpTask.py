@@ -7,8 +7,13 @@ from task import Task
 class JumpTask(Task):
 
     async def run(self, bot, arg):
+        command = arg.content.split(' ')
         sender = arg.author
+
         if sender.voice.voice_channel is None:
+            if bot.voice_client_in(sender.server) is not None:
+                await bot.voice_client_in(sender.server).disconnect()
+        elif len(command) >= 3 and command[2] == 'dc':
             if bot.voice_client_in(sender.server) is not None:
                 await bot.voice_client_in(sender.server).disconnect()
         elif bot.is_voice_connected(sender.server):
