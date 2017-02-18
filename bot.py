@@ -6,6 +6,7 @@ from trigger import Trigger
 
 # Triggers
 from triggers.adminChatTrigger import AdminChatTrigger
+from triggers.userChatTrigger import UserChatTrigger
 
 # Tasks
 from tasks.jumpTask import JumpTask
@@ -35,6 +36,10 @@ class Bot(discord.Client):
             await self.send_message(message.channel, 'That is the single most pop punk thing you have ever said in your entire life, ever.')
 
     def register_commands(self):
+        # Admin Tasks
         self._adminCmdTrigger.register(JumpTask('jump'))
         self._adminCmdTrigger.register(ExecTask('exec'))
         self._adminCmdTrigger.register(EvalTask('eval'))
+
+        #User Tasks
+        # self._userCmdTrigger.register()
