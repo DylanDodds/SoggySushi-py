@@ -1,19 +1,25 @@
 import discord
 
+from tasks.debugTask import DebugTask
+
+from tasks.chat.execTask import ExecTask
+from tasks.chat.helpTask import HelpTask
+
+from tasks.voice.jumpTask import JumpTask
+
+from tasks.music.pausePlayerTask import PausePlayerTask
+from tasks.music.playYoutubeTask import PlayYoutubeTask
+from tasks.music.resumePlayerTask import ResumePlayerTask
+from tasks.music.stopPlayerTask import StopPlayerTask
+from tasks.music.volumePlayerTask import VolumePlayerTask
+
+from tasks.system.loadLibrariesTask import LoadLibrariesTask
+from tasks.system.printBotInfoTask import PrintBotInfoTask
+
 from triggers.adminChatTrigger import AdminChatTrigger
 from triggers.musicChatTrigger import MusicChatTrigger
 from triggers.userChatTrigger import UserChatTrigger
-
-from tasks.debugTask import DebugTask
-from tasks.execTask import ExecTask
-from tasks.helpTask import HelpTask
-from tasks.jumpTask import JumpTask
-
-from tasks.music.playYoutubeTask import PlayYoutubeTask
-from tasks.music.stopPlayerTask import StopPlayerTask
-from tasks.music.pausePlayerTask import PausePlayerTask
-from tasks.music.resumePlayerTask import ResumePlayerTask
-from tasks.music.volumePlayerTask import VolumePlayerTask
+from triggers.systemTrigger import SystemTrigger
 
 
 class Bot(discord.Client):
@@ -21,14 +27,13 @@ class Bot(discord.Client):
     def __init__(self):
         super().__init__()
         self.triggers = []
+        self.systemTrigger = SystemTrigger(self)
         self.register_triggers()
 
     def register_triggers(self):
         act = AdminChatTrigger(self, '--s')
         uct = UserChatTrigger(self, '.s')
         mct = MusicChatTrigger(self, '.m')
-
-        mct_spcl = MusicChatTrigger(self, '♪')
 
         act.register(JumpTask('jump'))
         act.register(JumpTask('join'))
@@ -47,21 +52,14 @@ class Bot(discord.Client):
         mct.register(VolumePlayerTask('volume'))
         mct.register(HelpTask('help'))
 
-        mct_spcl.register(PlayYoutubeTask('play'))
-        mct_spcl.register(ResumePlayerTask('play'))
-        mct_spcl.register(StopPlayerTask('stop'))
-        mct_spcl.register(PausePlayerTask('pause'))
-        mct_spcl.register(VolumePlayerTask('volume'))
-        mct_spcl.register(HelpTask('help'))
+        self.systemTrigger.register(LoadLibrariesTask('on_ready'))
+        self.systemTrigger.register(PrintBotInfoTask('on_ready'))
 
-
-        self.triggers.extend([act, uct, mct, mct_spcl])
+        self.triggers.extend([act, uct, mct])
 
     async def on_ready(self):
-        discord.opus.load_opus('libopus-0')
-        print('Soggy Sushi has successfully connected!')
-        print('Username: ' + self.user.name)
-        print('UserId: ' + self.user.id)
+        notification = ['on_ready']
+        await self.systemTrigger.notify(notification)
 
     async def on_message(self, message):
         message.content += ' '

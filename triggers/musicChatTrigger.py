@@ -1,5 +1,6 @@
 import re
-from trigger import Trigger
+
+from interface.trigger import Trigger
 
 
 # Tasks in this class (other then help) take an arg list consisting of the usual argument

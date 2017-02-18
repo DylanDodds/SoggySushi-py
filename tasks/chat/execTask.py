@@ -1,5 +1,6 @@
 import re
-from task import Task
+
+from interface.task import Task
 
 
 # A task that execute python code

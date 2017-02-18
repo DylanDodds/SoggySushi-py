@@ -1,5 +1,6 @@
 import re
-from trigger import Trigger
+
+from interface.trigger import Trigger
 
 
 # A Notification system that runs tasks when administrative commands have been requested by the user

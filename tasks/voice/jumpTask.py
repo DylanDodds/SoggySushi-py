@@ -1,5 +1,6 @@
 import re
-from task import Task
+
+from interface.task import Task
 
 
 # A task that moves the bot to whichever voice channel the user is currently connected to.

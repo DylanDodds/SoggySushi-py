@@ -1,6 +1,6 @@
 import re
 
-from trigger import Trigger
+from interface.trigger import Trigger
 
 
 # A notification system that runs tasks when commands have been requested by the user
