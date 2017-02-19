@@ -1,20 +1,9 @@
 import discord
 
-from tasks.debugTask import DebugTask
-
-from tasks.chat.execTask import ExecTask
-from tasks.chat.helpTask import HelpTask
-
-from tasks.voice.jumpTask import JumpTask
-
-from tasks.music.pausePlayerTask import PausePlayerTask
-from tasks.music.playYoutubeTask import PlayYoutubeTask
-from tasks.music.resumePlayerTask import ResumePlayerTask
-from tasks.music.stopPlayerTask import StopPlayerTask
-from tasks.music.volumePlayerTask import VolumePlayerTask
-
-from tasks.system.loadLibrariesTask import LoadLibrariesTask
-from tasks.system.printBotInfoTask import PrintBotInfoTask
+from tasks import voice
+from tasks import music
+from tasks import system
+from tasks import operation
 
 from triggers.adminChatTrigger import AdminChatTrigger
 from triggers.musicChatTrigger import MusicChatTrigger
@@ -26,7 +15,7 @@ class Bot(discord.Client):
 
     def __init__(self):
         super().__init__()
-        self.triggers = []
+        self.chat_triggers = []
         self.systemTrigger = SystemTrigger(self)
         self.register_triggers()
 
@@ -35,27 +24,26 @@ class Bot(discord.Client):
         uct = UserChatTrigger(self, '.s')
         mct = MusicChatTrigger(self, '.m')
 
-        act.register(JumpTask('jump'))
-        act.register(JumpTask('join'))
-        act.register(ExecTask('run'))
-        act.register(DebugTask('dbg'))
-        act.register(HelpTask('help'))
+        act.register(voice.join_channel, 'jump')
+        act.register(voice.join_channel, 'join')
+        act.register(operation.run_code, 'exec')
+        act.register(operation.print_help, 'help')
 
-        uct.register(JumpTask('jump'))
-        uct.register(JumpTask('join'))
-        uct.register(HelpTask('help'))
+        uct.register(voice.join_channel, 'jump')
+        uct.register(voice.join_channel, 'join')
+        uct.register(operation.print_help, 'help')
 
-        mct.register(PlayYoutubeTask('play'))
-        mct.register(ResumePlayerTask('play'))
-        mct.register(StopPlayerTask('stop'))
-        mct.register(PausePlayerTask('pause'))
-        mct.register(VolumePlayerTask('volume'))
-        mct.register(HelpTask('help'))
+        mct.register(music.play_youtube, 'play')
+        mct.register(music.resume, 'play')
+        mct.register(music.stop, 'stop')
+        mct.register(music.pause, 'pause')
+        mct.register(music.volume, 'volume')
+        mct.register(operation.print_help, 'help')
 
-        self.systemTrigger.register(LoadLibrariesTask('on_ready'))
-        self.systemTrigger.register(PrintBotInfoTask('on_ready'))
+        self.systemTrigger.register(system.load_libraries, 'on_ready')
+        self.systemTrigger.register(system.print_bot_info, 'on_ready')
 
-        self.triggers.extend([act, uct, mct])
+        self.chat_triggers.extend([act, uct, mct])
 
     async def on_ready(self):
         notification = ['on_ready']
@@ -63,7 +51,7 @@ class Bot(discord.Client):
 
     async def on_message(self, message):
         message.content += ' '
-        for trigger in self.triggers:
+        for trigger in self.chat_triggers:
             await trigger.notify(message)
 
         if 'pizza' in message.content.lower():

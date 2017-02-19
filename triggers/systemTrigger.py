@@ -5,6 +5,6 @@ from interface.trigger import Trigger
 class SystemTrigger(Trigger):
 
     async def notify(self, arg):
-        for task in self._tasks:
-            if task.hook == arg[0]:
-                await task.run(self._bot, arg)
+        if arg[0] in self._tasks:
+            for task in self._tasks[arg[0]]:
+                await task(self, self._bot, arg[0], arg)

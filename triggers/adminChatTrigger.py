@@ -29,9 +29,7 @@ class AdminChatTrigger(Trigger):
             await self._bot.send_message(arg.channel, sender.mention + ', please use "' + self.hook + ' help" for a list of commands')
             return
 
-        if command[0] == 'help':
-            arg.content = self._command_list_string
-
-        for task in self._tasks:
-            if task.hook == command[0]:
-                await task.run(self._bot, arg)
+        if command[0] in self._tasks:
+            for task in self._tasks[command[0]]:
+                arg.content = re.sub(command[0] + ' ', '', arg.content, count=1)
+                await task(self, self._bot, command[0], arg)

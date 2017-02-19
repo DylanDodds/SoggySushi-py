@@ -1,16 +1,16 @@
 class Trigger:
     def __init__(self, bot):
-        self._tasks = []
+        self._tasks = {}
         self._bot = bot
-        self._command_list_string = ''
+        self.command_list_string = ''
 
     async def notify(self, arg):
-        for task in self._tasks:
-            task.run(self._bot, arg)
+        for task in self._tasks.values():
+            task(self, self._bot, arg)
 
-    def register(self, task):
-        self._tasks.append(task)
-        self._command_list_string += '\n' + task.hook
+    def register(self, task, hook):
+        if hook not in self._tasks:
+            self._tasks[hook] = []
 
-    def set_tasks(self, tasklist):
-        self._tasks = tasklist
+        self._tasks[hook].append(task)
+        self.command_list_string += '\n' + hook

@@ -17,12 +17,11 @@ class UserChatTrigger(Trigger):
         arg.content = re.sub(self.command + ' ', '', arg.content, count=1)
         command = arg.content.split(' ')
         sender = arg.author
+
         if len(command) < 1 or command[0] == '':
             await self._bot.send_message(arg.channel, sender.mention + ', please use ' + self.command + '" help" for a list of commads')
         else:
-            if command[0] == 'help':
-                arg.content = self._command_list_string
-
-            for task in self._tasks:
-                if task.hook == command[0]:
-                    await task.run(self._bot, arg)
+            if command[0] in self._tasks:
+                for task in self._tasks[command[0]]:
+                    arg.content = re.sub(command[0] + ' ', '', arg.content, count=1)
+                    await task(self, self._bot, command[0], arg)
