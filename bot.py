@@ -23,8 +23,8 @@ class Bot(discord.Client):
         self.register_triggers()
         self.data_agent = DataAgent()
         self.chat_engine = ChatEngine()
-        self.last_message = None
-        self.last_parent_id = None
+        self.last_messages = {}
+        self.last_parent_ids = {}
 
     def register_triggers(self):
         act = AdminChatTrigger(self, '--s')
@@ -72,19 +72,23 @@ class Bot(discord.Client):
                     return
                 # Handle data collection process
                 elif channel_ops['action'] == 'collect':
-                    if not self.last_message:
-                        self.last_message = message
+                    if message.channel.id not in self.last_messages:
+                        self.last_messages[message.channel.id] = message
+                        self.last_parent_ids[message.channel.id] = None
                         return
 
-                    if message.author.id == self.last_message.author.id:
-                        self.last_message.content += '\n' + message.content
+                    if message.author.id == self.last_messages[message.channel.id].author.id:
+                        self.last_messages[message.channel.id].content += '\n' + message.content
                         return
 
                     # Push Last Message Message
-                    self.data_agent.push_comment(self.last_message.content, 0, channel_ops['source'], self.last_message.id, self.last_parent_id,
-                                                 channel_ops['tag'], self.last_message.author.id)
-                    self.last_parent_id = self.last_message.id
-                    self.last_message = message
+                    parent_id = None
+                    if message.channel.id in self.last_parent_ids:
+                        parent_id = self.last_parent_ids[message.channel.id]
+                    self.data_agent.push_comment(self.last_messages[message.channel.id].content, 0, channel_ops['source'],
+                                                 self.last_messages[message.channel.id].id, parent_id, channel_ops['tag'], self.last_messages[message.channel.id].author.id)
+                    self.last_parent_ids[message.channel.id] = self.last_messages[message.channel.id].id
+                    self.last_messages[message.channel.id] = message
                     return
             elif channel_ops:
                 print("Tried to run channel options, but a required option was not set. Be sure that your topic is a json message containing 'action', 'source', and 'tag'.")
