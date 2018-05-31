@@ -13,7 +13,7 @@ class DataAgent:
             print('[DataAgent] Failed to connect to MongoDb... ', str(err))
 
 
-    def push_comment(self, body, score, source, comment_id, parent_id=None, tag=None):
+    def push_comment(self, body, score, source, comment_id, parent_id=None, tag=None, author=None):
         try:
             posts = self.converse_db.posts
             comment_data = {
@@ -23,7 +23,8 @@ class DataAgent:
                 'score': score,
                 'source': source,
                 'tag': tag,
-                'time_created_utc': datetime.now()
+                'time_created_utc': datetime.now(),
+                'author': author
             }
 
             if self.find_comment_by_id(comment_id):
