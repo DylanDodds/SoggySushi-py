@@ -93,30 +93,14 @@ class DataAgent:
             return None
 
 
-    def find_comment_by_source(self, source):
+    def find_comments(self, query={}):
         try:
             posts = self.converse_db.posts
-            data = posts.find({'source': source})
-
+            data = posts.find(query)
             results = []
             for comment in data:
                 results.append(comment)
-
             return results
         except Exception as err:
-            print("[DataAgent] Could not find comments with source: {}".format(source), str(err))
-            return None
-
-    def find_comment_by_tag(self, tag):
-        try:
-            posts = self.converse_db.posts
-            data = posts.find({'tag': tag})
-
-            results = []
-            for comment in data:
-                results.append(comment)
-
-            return results
-        except Exception as err:
-            print("[DataAgent] Could not find comments with tag: {}".format(tag), str(err))
+            print("[DataAgent] Could not find comments with the query: {}".format(str(query)), str(err))
             return None

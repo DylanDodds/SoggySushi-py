@@ -7,7 +7,7 @@ import json
 
 from tasks import system
 from tasks import operation
-from data_agent.dataAgent import DataAgent
+from data.dataAgent import DataAgent
 from triggers.adminChatTrigger import AdminChatTrigger
 from triggers.musicChatTrigger import MusicChatTrigger
 from triggers.userChatTrigger import UserChatTrigger
@@ -25,6 +25,7 @@ class Bot(discord.Client):
         self.chat_engine = ChatEngine()
         self.last_messages = {}
         self.last_parent_ids = {}
+        self.scores = {}
 
     def register_triggers(self):
         act = AdminChatTrigger(self, '--s')
@@ -69,29 +70,13 @@ class Bot(discord.Client):
             if channel_ops and channel_ops['action'] and channel_ops['source'] and channel_ops['tag']:
                 # Handle Conversation Process
                 if channel_ops['action'] == 'converse':
-                    return
+                    pass
                 # Handle data collection process
                 elif channel_ops['action'] == 'collect':
-                    if message.channel.id not in self.last_messages:
-                        self.last_messages[message.channel.id] = message
-                        self.last_parent_ids[message.channel.id] = None
-                        return
-
-                    if message.author.id == self.last_messages[message.channel.id].author.id:
-                        self.last_messages[message.channel.id].content += '\n' + message.content
-                        return
-
-                    # Push Last Message Message
-                    parent_id = None
-                    if message.channel.id in self.last_parent_ids:
-                        parent_id = self.last_parent_ids[message.channel.id]
-                    self.data_agent.push_comment(self.last_messages[message.channel.id].content, 0, channel_ops['source'],
-                                                 self.last_messages[message.channel.id].id, parent_id, channel_ops['tag'], self.last_messages[message.channel.id].author.id)
-                    self.last_parent_ids[message.channel.id] = self.last_messages[message.channel.id].id
-                    self.last_messages[message.channel.id] = message
-                    return
+                    self.collect_message(channel_ops, message)
             elif channel_ops:
-                print("Tried to run channel options, but a required option was not set. Be sure that your topic is a json message containing 'action', 'source', and 'tag'.")
+                print(
+                    "Tried to run channel options, but a required option was not set. Be sure that your topic is a json message containing 'action', 'source', and 'tag'.")
 
         # Talking to yourself is the first sign of insanity
         if message.author.id == self.user.id:
@@ -100,6 +85,36 @@ class Bot(discord.Client):
         message.content += ' '
         for trigger in self.chat_triggers:
             await trigger.notify(message)
+
+
+    def collect_message(self, channel_ops, message):
+        if len(message.content) >= 3 and message.content[:2] == '++' and message.channel.id in self.last_messages:
+            plusies = int(message.content[2:])
+            self.scores[message.channel.id] += plusies
+            if self.scores[message.channel.id] > 100:
+                self.scores[message.channel.id] = 100
+            return
+        if message.channel.id not in self.last_messages:
+            self.last_messages[message.channel.id] = message
+            self.last_parent_ids[message.channel.id] = None
+            self.scores[message.channel.id] = 1
+            return
+        if message.author.id == self.last_messages[message.channel.id].author.id:
+            self.last_messages[message.channel.id].content += '\n' + message.content
+            return
+
+        # Push Last Message Message
+        parent_id = None
+        if message.channel.id in self.last_parent_ids:
+            parent_id = self.last_parent_ids[message.channel.id]
+        self.data_agent.push_comment(self.last_messages[message.channel.id].content, self.scores[message.channel.id],
+                                     channel_ops['source'],
+                                     self.last_messages[message.channel.id].id, parent_id, channel_ops['tag'],
+                                     self.last_messages[message.channel.id].author.id)
+        self.last_parent_ids[message.channel.id] = self.last_messages[message.channel.id].id
+        self.last_messages[message.channel.id] = message
+        self.scores[message.channel.id] = 1
+
 
     def try_parse_json(self, str):
         try:
