@@ -27,6 +27,7 @@ class Bot(discord.Client):
         self.last_parent_ids = {}
         self.scores = {}
 
+
     def register_triggers(self):
         act = AdminChatTrigger(self, '--s')
         uct = UserChatTrigger(self, '.s')
@@ -60,25 +61,26 @@ class Bot(discord.Client):
 
 
     async def on_message(self, message):
-
         # No Private Messages
         if message.channel.is_private:
             return
 
+        # See if the channel topic has settings
         if message.channel.topic:
             channel_ops = self.try_parse_json(message.channel.topic)
             if channel_ops and channel_ops['action'] and channel_ops['source'] and channel_ops['tag']:
                 # Handle Conversation Process
                 if channel_ops['action'] == 'converse':
-                    pass
+                    if message.author.id == self.user.id:
+                        return # Talking to yourself is the first sign of insanity
+
+                    self.chat_engine.generate_response(message.content)
                 # Handle data collection process
                 elif channel_ops['action'] == 'collect':
                     self.collect_message(channel_ops, message)
             elif channel_ops:
-                print(
-                    "Tried to run channel options, but a required option was not set. Be sure that your topic is a json message containing 'action', 'source', and 'tag'.")
+                print("Tried to run channel options, but a required option was not set. Be sure that your topic is a json message containing 'action', 'source', and 'tag'.")
 
-        # Talking to yourself is the first sign of insanity
         if message.author.id == self.user.id:
             return
 
@@ -107,9 +109,12 @@ class Bot(discord.Client):
         parent_id = None
         if message.channel.id in self.last_parent_ids:
             parent_id = self.last_parent_ids[message.channel.id]
-        self.data_agent.push_comment(self.last_messages[message.channel.id].content, self.scores[message.channel.id],
+        self.data_agent.push_comment(self.last_messages[message.channel.id].content,
+                                     self.scores[message.channel.id],
                                      channel_ops['source'],
-                                     self.last_messages[message.channel.id].id, parent_id, channel_ops['tag'],
+                                     self.last_messages[message.channel.id].id,
+                                     parent_id,
+                                     channel_ops['tag'],
                                      self.last_messages[message.channel.id].author.id)
         self.last_parent_ids[message.channel.id] = self.last_messages[message.channel.id].id
         self.last_messages[message.channel.id] = message

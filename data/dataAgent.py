@@ -1,7 +1,10 @@
+import json
+from datetime import datetime
+
 from pymongo import MongoClient
-from bson.objectid import ObjectId
 from datetime import datetime
 from config import config
+
 
 class DataAgent:
     def __init__(self):
@@ -102,5 +105,33 @@ class DataAgent:
                 results.append(comment)
             return results
         except Exception as err:
-            print("[DataAgent] Could not find comments with the query: {}".format(str(query)), str(err))
+            print("[DataAgent] Could not find comments with the query: {}\n{}".format(str(query), str(err)))
             return None
+
+
+    def generate_learning_batch(self, query={}, cache_to_file=True):
+        try:
+            learning_batch = [] # {comment: '', response: ''}
+
+            # Find all posts with parents
+            query['parent_id'] = {'$ne': None}
+            child_comments = self.find_comments(query)
+            for child_comment in child_comments:
+                parent_comment = self.find_comment_by_id(child_comment['parent_id'])
+                if parent_comment:
+                    learning_batch.append({'comment': parent_comment['content'], 'response': child_comment['content']})
+            if cache_to_file:
+                filename = 'learning_batch_{}.json'.format(datetime.now().strftime('%d-%m-%Y-%H-%M-%S'))
+                with open(filename, 'w') as file:
+                    file.write(json.dumps(learning_batch))
+                print('[DataAgent] Exported learning batch to {}'.format(filename))
+            return learning_batch
+        except Exception as err:
+            print("[DataAgent] Could not generate learning batch;\n    query: {}\n{}".format(str(query), str(err)))
+            return None
+
+
+    def load_learning_batch(self, filename):
+        with open(filename) as data:
+            output = json.load(data)
+            return output

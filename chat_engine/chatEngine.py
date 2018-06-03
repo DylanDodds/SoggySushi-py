@@ -7,5 +7,5 @@ class ChatEngine():
     def train(self):
         pass
 
-    def process_message(self, message):
+    def generate_response(self, comment):
         pass
